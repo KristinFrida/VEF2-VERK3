@@ -1,17 +1,24 @@
 {
-  "name": "my-app",
+  "name": "vef2-2025-v3-unnid-i-time",
   "type": "module",
+  "engines": {
+    "node": "22"
+  },
   "scripts": {
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node ./dist/index.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.8",
-    "@prisma/client": "^6.4.1",
-    "hono": "^4.7.4",
+    "@prisma/client": "6.4.1",
+    "hono": "^4.7.2",
+    "prisma": "^6.4.1",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
-    "tsx": "^4.7.1"
+    "tsx": "^4.7.1",
+    "typescript": "^5.8.2"
   }
 }
