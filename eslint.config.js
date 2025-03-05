@@ -1,25 +1,16 @@
-// eslint.config.cjs
-module.exports = {
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: './tsconfig.json',
+import typescriptEslint from 'typescript-eslint';
+
+export default [
+  {
+    files: ['src/**/*.ts', 'src/**/*.tsx'],
+    languageOptions: {
+      parser: typescriptEslint.parser,
+    },
+    plugins: {
+      '@typescript-eslint': typescriptEslint.plugin,
+    },
+    rules: {
+      ...typescriptEslint.configs.recommended.rules,
+    },
   },
-  plugins: ['@typescript-eslint'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-  ],
-  rules: {
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
-    quotes: ['error', 'single'],
-    'no-console': [
-      'warn',
-      {
-        allow: ['warn', 'error', 'info'],
-      },
-    ],
-  },
-  ignorePatterns: ['node_modules/', 'dist/'],
-};
+];
