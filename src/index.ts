@@ -71,10 +71,10 @@ app.get('/categories/:slug', async (c) => {
 })
 
 /**
- * [POST] /categories
+ * [POST] /category
  * Býr til nýjan flokk
  */
-app.post('/categories', async (c) => {
+app.post('/category', async (c) => {
   try {
     const body = await c.req.json()
     const parsed = validateCategoryCreate(body)
