@@ -15,8 +15,6 @@ model Category {
   title     String    @unique
   slug      String    @unique
   questions Question[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
 }
 
 model Question {
@@ -26,8 +24,6 @@ model Question {
   category   Category? @relation(fields: [categoryId], references: [id])
   categoryId Int?      @map("category_id")
   answers    Answer[]
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
 }
 
 model Answer {
@@ -36,6 +32,4 @@ model Answer {
   isCorrect  Boolean  @default(false)
   question   Question @relation(fields: [questionId], references: [id])
   questionId Int      @map("question_id")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
 }
