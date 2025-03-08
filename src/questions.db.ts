@@ -5,7 +5,7 @@ import xss from 'xss'
 const prisma = new PrismaClient()
 
 /**
- * Zod schemas
+ * Zod schema fyrir POST (create) á spurningu
  */
 const QuestionCreateSchema = z.object({
   question: z.string().min(3).max(2000),
@@ -13,19 +13,30 @@ const QuestionCreateSchema = z.object({
   categoryId: z.number().optional(),
 })
 
+/**
+ * Zod schema fyrir PATCH (update) á spurningu
+ */
 const QuestionUpdateSchema = QuestionCreateSchema.partial()
 
-/**
- * Types
- */
 export type QuestionCreateType = z.infer<typeof QuestionCreateSchema>
 export type QuestionUpdateType = z.infer<typeof QuestionUpdateSchema>
 
 /**
- * Fetch a list of questions
- * @param limit 
- * @param offset 
- * @returns 
+ * Validera gögn áður en spurning er búin til
+ */
+export function validateQuestionCreate(data: unknown) {
+  return QuestionCreateSchema.safeParse(data)
+}
+
+/**
+ * Validera gögn áður en spurning er uppfærð
+ */
+export function validateQuestionUpdate(data: unknown) {
+  return QuestionUpdateSchema.safeParse(data)
+}
+
+/**
+ * Sækja lista af spurningum
  */
 export async function getQuestions(
   limit = 10,
@@ -39,58 +50,54 @@ export async function getQuestions(
 }
 
 /**
- * Fetch a question by id
- * @param id 
- * @returns 
+ * Sækja allar spurningar sem tilheyra flokki (með categoryId)
  */
-export async function getQuestionById(id: number): Promise<PrismaQuestion | null> {
-  return prisma.question.findUnique({
-    where: { id },
+export async function getQuestionsByCategoryId(
+  categoryId: number,
+  limit = 10,
+  offset = 0
+): Promise<PrismaQuestion[]> {
+  return prisma.question.findMany({
+    skip: offset,
+    take: limit,
+    where: { categoryId },
+    orderBy: { id: 'asc' },
   })
 }
 
 /**
- * Validate data for creating a question
- * @param data 
- * @returns
+ * Sækja staka spurningu eftir id
  */
-export function validateQuestionCreate(data: unknown) {
-  return QuestionCreateSchema.safeParse(data)
+export async function getQuestionById(
+  id: number
+): Promise<PrismaQuestion | null> {
+  return prisma.question.findUnique({
+    where: { id },
+    // Ef þú vilt skila svörum með geturðu sett:
+    // include: { answers: true },
+  })
 }
 
 /**
- * Create a new question
- * @param data
- * @returns 
+ * Búa til nýja spurningu
  */
 export async function createQuestion(
   data: QuestionCreateType
 ): Promise<PrismaQuestion> {
-  const { question, answer, categoryId } = data
+  const safeQuestion = xss(data.question)
+  const safeAnswer = xss(data.answer)
 
   return prisma.question.create({
     data: {
-      question: xss(question),
-      answer: xss(answer),
-      categoryId: categoryId ?? null,
+      question: safeQuestion,
+      answer: safeAnswer,
+      categoryId: data.categoryId ?? null,
     },
   })
 }
 
 /**
- * Validate data for updating a question
- * @param data 
- * @returns 
- */
-export function validateQuestionUpdate(data: unknown) {
-  return QuestionUpdateSchema.safeParse(data)
-}
-
-/**
- * Update a question
- * @param id 
- * @param data 
- * @returns 
+ * Uppfæra spurningu eftir id
  */
 export async function updateQuestion(
   id: number,
@@ -98,10 +105,10 @@ export async function updateQuestion(
 ): Promise<PrismaQuestion> {
   const updateData: Partial<PrismaQuestion> = {}
 
-  if (data.question) {
+  if (typeof data.question !== 'undefined') {
     updateData.question = xss(data.question)
   }
-  if (data.answer) {
+  if (typeof data.answer !== 'undefined') {
     updateData.answer = xss(data.answer)
   }
   if (typeof data.categoryId !== 'undefined') {
@@ -115,9 +122,7 @@ export async function updateQuestion(
 }
 
 /**
- * Delete a question
- * @param id 
- * @returns 
+ * Eyða spurningu eftir id
  */
 export async function deleteQuestion(id: number): Promise<PrismaQuestion> {
   return prisma.question.delete({

@@ -5,24 +5,41 @@ import xss from 'xss'
 const prisma = new PrismaClient()
 
 /**
- * Zod schemas
+ * Zod schema fyrir POST (create) á flokk
  */
 const CategoryCreateSchema = z.object({
   title: z.string().min(3).max(1024),
 })
 
+/**
+ * Zod schema fyrir PATCH (update) á flokk
+ */
 const CategoryUpdateSchema = z.object({
   title: z.string().min(3).max(1024).optional(),
 })
 
+/**
+ * Týpur sem koma úr Zod schema
+ */
 export type CategoryCreateType = z.infer<typeof CategoryCreateSchema>
 export type CategoryUpdateType = z.infer<typeof CategoryUpdateSchema>
 
 /**
- * Fetch a list of categories
- * @param limit 
- * @param offset 
- * @returns 
+ * Validera gögn áður en flokk er búinn til
+ */
+export function validateCategoryCreate(data: unknown) {
+  return CategoryCreateSchema.safeParse(data)
+}
+
+/**
+ * Validera gögn áður en flokk er uppfærður
+ */
+export function validateCategoryUpdate(data: unknown) {
+  return CategoryUpdateSchema.safeParse(data)
+}
+
+/**
+ * Sækja lista af flokkum
  */
 export async function getCategories(
   limit = 10,
@@ -36,9 +53,7 @@ export async function getCategories(
 }
 
 /**
- * Fetch a category by slug
- * @param slug 
- * @returns 
+ * Sækja flokk eftir slug
  */
 export async function getCategoryBySlug(
   slug: string
@@ -49,52 +64,29 @@ export async function getCategoryBySlug(
 }
 
 /**
- * Validate data for creating a category
- * @param data 
- * @returns 
- */
-export function validateCategoryCreate(data: unknown) {
-  return CategoryCreateSchema.safeParse(data)
-}
-
-/**
- * Create a new category
- * @param data 
- * @returns 
+ * Búa til nýjan flokk
  */
 export async function createCategory(
   data: CategoryCreateType
 ): Promise<PrismaCategory> {
-  // Clean title
-  const title = xss(data.title)
-  // Generate slug
-  const slug = title
+  // Hreinsa input
+  const safeTitle = xss(data.title)
+  // Búa til slug
+  const slug = safeTitle
     .toLowerCase()
     .replace(/\s+/g, '-')
     .replace(/[^\w-]/g, '')
 
   return prisma.category.create({
     data: {
-      title,
+      title: safeTitle,
       slug,
     },
   })
 }
 
 /**
- * Validate data for updating a category
- * @param data 
- * @returns 
- */
-export function validateCategoryUpdate(data: unknown) {
-  return CategoryUpdateSchema.safeParse(data)
-}
-
-/**
- * Update a category
- * @param slug 
- * @param data 
- * @returns 
+ * Uppfæra flokk eftir slug
  */
 export async function updateCategory(
   slug: string,
@@ -122,9 +114,7 @@ export async function updateCategory(
 }
 
 /**
- * Delete a category
- * @param slug 
- * @returns 
+ * Eyða flokk eftir slug
  */
 export async function deleteCategory(slug: string): Promise<PrismaCategory> {
   return prisma.category.delete({
