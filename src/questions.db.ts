@@ -11,7 +11,29 @@ const QuestionCreateSchema = z.object({
   question: z.string().min(3).max(2000),
   answer: z.string().min(3).max(2000),
   categoryId: z.number().optional(),
+  answers: z
+  .array(
+    z.object({
+      answer: z.string().min(1).max(2000),
+      isCorrect: z.boolean().optional().default(false),
+    })
+  )
+  .max(4)
+  .optional(),
 })
+
+const QuestionCreateSchemaWithRefine = QuestionCreateSchema.superRefine((data, ctx) => {
+  if (data.answers && data.answers.length > 0) {
+    const correctCount = data.answers.filter((a) => a.isCorrect).length;
+    if (correctCount !== 1) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Exactly one answer must be correct',
+        path: ['answers'],
+      });
+    }
+  }
+});
 
 /**
  * Zod schema fyrir PATCH (update) á spurningu
@@ -73,8 +95,7 @@ export async function getQuestionById(
 ): Promise<PrismaQuestion | null> {
   return prisma.question.findUnique({
     where: { id },
-    // Ef þú vilt skila svörum með geturðu sett:
-    // include: { answers: true },
+    include: { answers: true },
   })
 }
 
@@ -84,16 +105,39 @@ export async function getQuestionById(
 export async function createQuestion(
   data: QuestionCreateType
 ): Promise<PrismaQuestion> {
-  const safeQuestion = xss(data.question)
-  const safeAnswer = xss(data.answer)
+  // XSS sanitize the question & answer
+  const safeQuestion = xss(data.question);
+  const safeAnswer = xss(data.answer);
+  let answersData: { answer: string; isCorrect: boolean }[] | undefined = undefined;
+
+  if (data.answers && data.answers.length > 0) {
+    answersData = data.answers.map((a) => ({
+      answer: xss(a.answer),
+      isCorrect: a.isCorrect === true,
+    }));
+  }
+  
 
   return prisma.question.create({
     data: {
       question: safeQuestion,
-      answer: safeAnswer,
+      answer: safeAnswer, // Possibly remove if you only want to use `answers[]`
       categoryId: data.categoryId ?? null,
+
+      // Create answers in the same transaction
+      ...(answersData
+        ? {
+            answers: {
+              create: answersData,
+            },
+          }
+        : {}),
     },
-  })
+    // Optionally return the newly created question + answers
+    include: {
+      answers: true,
+    },
+  });
 }
 
 /**

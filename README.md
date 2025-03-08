@@ -9,3 +9,32 @@ createdb vef2-2025-v3-unnid-i-tima
 npx prisma db push
 yarn dev
 ```
+Fyrir gerðir:
+
+- `GET /categories` skilar lista af flokkum:
+  - `200 OK` skilað með gögnum á JSON formi.
+  - `500 Internal Error` skilað ef villa kom upp.
+- `GET /categories/:slug` skilar stökum flokki:
+  - `200 OK` skilað með gögnum ef flokkur er til.
+  - `404 Not Found` skilað ef flokkur er ekki til.
+  - `500 Internal Error` skilað ef villa kom upp.
+- `POST /category` býr til nýjan flokk:
+  - `201 Created` (eða `200 OK` sem var áður hér) skilað ásamt upplýsingum um flokk.
+  - `400 Bad Request` skilað ef gögn sem send inn eru ekki rétt (vantar gögn, gögn á röngu formi eða innihald þeirra ólöglegt).
+  - `500 Internal Error` skilað ef villa kom upp.
+- `PATCH /category/:slug` uppfærir flokk:
+  - `200 OK` skilað með uppfærðum flokk ef gekk.
+  - `400 Bad Request` skilað ef gögn sem send inn eru ekki rétt.
+  - `404 Not Found` skilað ef flokkur er ekki til.
+  - `500 Internal Error` skilað ef villa kom upp.
+- `DELETE /category/:slug` eyðir flokk:
+  - `204 No Content` skilað ef gekk.
+  - `404 Not Found` skilað ef flokkur er ekki til.
+  - `500 Internal Error` skilað ef villa kom upp.
+  
+  `GET /questions` Nær í allar spurningarnar:
+  `GET /categories/questions/:id` Þá er hægt að skoða ákveðna spurningu:
+  `GET /categories/:slug/questions` Skoðar spurningar í flokk:
+  `POST /categories/:slug/questions` Býr til spurningu í flokk:
+  `PATCH /questions/:id` Lagar spurningu:
+  `DELETE /questions/:id` Eyður spurningu:
