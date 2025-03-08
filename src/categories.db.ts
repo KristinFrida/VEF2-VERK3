@@ -1,73 +1,133 @@
-import { z } from 'zod';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Category as PrismaCategory } from '@prisma/client'
+import { z } from 'zod'
+import xss from 'xss'
 
-const CategorySchema = z.object({
-  id: z.number(),
-  title: z
-    .string()
-    .min(3, 'title must be at least three letters')
-    .max(1024, 'title must be at most 1024 letters'),
-  slug: z.string(),
-});
+const prisma = new PrismaClient()
 
-const CategoryToCreateSchema = z.object({
-  title: z
-    .string()
-    .min(3, 'title must be at least three letters')
-    .max(1024, 'title must be at most 1024 letters'),
-});
+/**
+ * Zod schemas
+ */
+const CategoryCreateSchema = z.object({
+  title: z.string().min(3).max(1024),
+})
 
-type Category = z.infer<typeof CategorySchema>;
-type CategoryToCreate = z.infer<typeof CategoryToCreateSchema>;
+const CategoryUpdateSchema = z.object({
+  title: z.string().min(3).max(1024).optional(),
+})
 
-const mockCategories: Array<Category> = [
-  {
-    id: 1,
-    slug: 'html',
-    title: 'HTML',
-  },
-  {
-    id: 2,
-    slug: 'css',
-    title: 'CSS',
-  },
-  {
-    id: 3,
-    slug: 'js',
-    title: 'JavaScript',
-  },
-];
+export type CategoryCreateType = z.infer<typeof CategoryCreateSchema>
+export type CategoryUpdateType = z.infer<typeof CategoryUpdateSchema>
 
-const prisma = new PrismaClient();
-
+/**
+ * Fetch a list of categories
+ * @param limit 
+ * @param offset 
+ * @returns 
+ */
 export async function getCategories(
-  limit: number = 10,
-  offset: number = 0,
-): Promise<Array<Category>> {
-  const categories = await prisma.categories.findMany();
-  console.log('categories :>> ', categories);
-  return categories;
+  limit = 10,
+  offset = 0
+): Promise<PrismaCategory[]> {
+  return prisma.category.findMany({
+    skip: offset,
+    take: limit,
+    orderBy: { id: 'asc' },
+  })
 }
 
-export function getCategory(slug: string): Category | null {
-  const cat = mockCategories.find((c) => c.slug === slug);
-
-  return cat ?? null;
+/**
+ * Fetch a category by slug
+ * @param slug 
+ * @returns 
+ */
+export async function getCategoryBySlug(
+  slug: string
+): Promise<PrismaCategory | null> {
+  return prisma.category.findUnique({
+    where: { slug },
+  })
 }
 
-export function validateCategory(categoryToValidate: unknown) {
-  const result = CategoryToCreateSchema.safeParse(categoryToValidate);
-
-  return result;
+/**
+ * Validate data for creating a category
+ * @param data 
+ * @returns 
+ */
+export function validateCategoryCreate(data: unknown) {
+  return CategoryCreateSchema.safeParse(data)
 }
 
-export async function createCategory(categoryToCreate: CategoryToCreate): Promise<Category> {
-  const createdCategory = await prisma.categories.create({
+/**
+ * Create a new category
+ * @param data 
+ * @returns 
+ */
+export async function createCategory(
+  data: CategoryCreateType
+): Promise<PrismaCategory> {
+  // Clean title
+  const title = xss(data.title)
+  // Generate slug
+  const slug = title
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]/g, '')
+
+  return prisma.category.create({
     data: {
-      title: categoryToCreate.title,
-      slug: categoryToCreate.title.toLowerCase().replace(' ', '-'),
+      title,
+      slug,
     },
-  });
+  })
+}
 
-  return createdCategory;
+/**
+ * Validate data for updating a category
+ * @param data 
+ * @returns 
+ */
+export function validateCategoryUpdate(data: unknown) {
+  return CategoryUpdateSchema.safeParse(data)
+}
+
+/**
+ * Update a category
+ * @param slug 
+ * @param data 
+ * @returns 
+ */
+export async function updateCategory(
+  slug: string,
+  data: CategoryUpdateType
+): Promise<PrismaCategory> {
+  let updatedData: Partial<PrismaCategory> = {}
+
+  if (data.title) {
+    const safeTitle = xss(data.title)
+    const newSlug = safeTitle
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w-]/g, '')
+
+    updatedData = {
+      title: safeTitle,
+      slug: newSlug,
+    }
+  }
+
+  return prisma.category.update({
+    where: { slug },
+    data: updatedData,
+  })
+}
+
+/**
+ * Delete a category
+ * @param slug 
+ * @returns 
+ */
+export async function deleteCategory(slug: string): Promise<PrismaCategory> {
+  return prisma.category.delete({
+    where: { slug },
+  })
 }
