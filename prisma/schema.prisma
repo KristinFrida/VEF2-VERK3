@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,8 +10,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Categories {
-  id    Int    @id @default(autoincrement())
-  title String @unique
-  slug  String @unique
+model Category {
+  id        Int       @id @default(autoincrement())
+  title     String    @unique
+  slug      String    @unique
+  questions Question[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Question {
+  id         Int       @id @default(autoincrement())
+  question   String
+  answer     String
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId Int?      @map("category_id")
+  answers    Answer[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Answer {
+  id         Int      @id @default(autoincrement())
+  answer     String
+  isCorrect  Boolean  @default(false)
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId Int      @map("question_id")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
