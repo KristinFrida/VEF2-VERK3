@@ -32,28 +32,28 @@ Fyrir gerðir:
   - `404 Not Found` skilað ef flokkur er ekki til.
   - `500 Internal Error` skilað ef villa kom upp.
   
-  `GET /questions` nær í allar spurningar:
+- `GET /questions` nær í allar spurningar:
   - `200 OK` skilað með öllum spurningum í JSON formi
   - `500 Internal Error` skilað ef villa kom upp.
-  `GET /questions/:id` nær í ákveðna spurningu:
+-  `GET /questions/:id` nær í ákveðna spurningu:
   - `200 OK` skilað með gögnum ef spurning er til.
   - `404 Not Found` skilað ef spurning er ekki til.
   - `500 Internal Error` skilað ef villa kom upp.
-  `GET /categories/:slug/questions` nær í allar spurningar í tilteknum flokki:
+-  `GET /categories/:slug/questions` nær í allar spurningar í tilteknum flokki:
   - `200 OK` skilað með lista af spurningum í flokknum.
   - `404 Not Found`skilað ef flokkur er ekki til
   - `500 Internal Error` skilað ef villa kom upp.
-  `POST /categories/:slug/questions` býr til nýja spurningu í flokk:
+-  `POST /categories/:slug/questions` býr til nýja spurningu í flokk:
   - `201 Created` skilað ásamt upplýsingum um nýja spurningu.
   - `400 Bad Request` skilað ef gögn sem send inn eru ekki rétt (vantar gögn, röng uppsetning, ólöglegt innihald).
   - `404 Not Found`skilað ef flokkur er ekki til
   - `500 Internal Error` skilað ef villa kom upp.
-  `PATCH /questions/:id` uppfærir spurningu:
+-  `PATCH /questions/:id` uppfærir spurningu:
   - `200 OK` skilað með uppfærðri spurningu ef tókst.
   - `400 Bad Request` skilað ef gögn sem send inn eru ekki rétt
   - `404 Not Found` skilað ef spurning er ekki til.
   - `500 Internal Error` skilað ef villa kom upp.
-  `DELETE /questions/:id` Eyður spurningu:
+-  `DELETE /questions/:id` Eyður spurningu:
   - `204 No Content` skilað ef eyðing tókst
   - `404 Not Found` skilað ef spurning er ekki til. 
   - `500 Internal Error` skilað ef villa kom upp.
