@@ -9,11 +9,6 @@ let createdQuestionId: number | undefined
 let categoryId: number | undefined
 
 beforeAll((done) => {
-  // Silence noisy logs during tests
-  jest.spyOn(console, 'error').mockImplementation(() => {})
-  jest.spyOn(console, 'log').mockImplementation(() => {})
-  jest.spyOn(console, 'warn').mockImplementation(() => {})
-
   server = createTestServer()
   server.listen(4001, done)
 })
