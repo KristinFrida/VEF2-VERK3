@@ -159,11 +159,34 @@ export async function updateQuestion(
     updateData.categoryId = data.categoryId
   }
 
+  let answersData: { answer: string; isCorrect: boolean }[] | undefined = undefined
+
+  if (data.answers) {
+    answersData = data.answers.map((a) => ({
+      answer: xss(a.answer),
+      isCorrect: a.isCorrect === true,
+    }))
+  }
+
   return prisma.question.update({
     where: { id },
-    data: updateData,
+    data: {
+      ...updateData,
+      ...(answersData
+        ? {
+            answers: {
+              deleteMany: {},
+              create: answersData,
+            },
+          }
+        : {}),
+    },
+    include: {
+      answers: true,
+    },
   })
 }
+
 
 /**
  * Eyða spurningu eftir id
