@@ -1,5 +1,5 @@
 import http from 'http'
-import { app } from '../src/app'
+import { app } from '../app'
 
 export function createTestServer() {
   return http.createServer(async (req, res) => {

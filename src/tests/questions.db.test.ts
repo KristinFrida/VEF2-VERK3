@@ -1,7 +1,7 @@
 import {
     validateQuestionCreate,
     validateQuestionUpdate
-  } from '../src/questions.db'
+  } from '../questions.db'
   
   describe('validateQuestionCreate', () => {
     it('should accept valid question with one correct answer', () => {

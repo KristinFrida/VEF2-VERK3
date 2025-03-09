@@ -9,7 +9,8 @@
     "moduleDetection": "force",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "resolveJsonModule": true 
   },
-  "include": ["src"]
+  "include": ["src", "src/tests"]
 }
