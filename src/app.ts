@@ -33,7 +33,7 @@ function errorResponse(c: Context, message: string, code = 500, error?: any) {
   return c.json({ error: message }, { status: code as ContentfulStatusCode })
 }
 
-app.get('/', (c) => c.json({ message: 'Hello from Hono!' }))
+app.get('/', (c) => c.json({ message: 'Verkefni 3 með Hono' }))
 
 app.get('/categories', async (c) => {
   try {
