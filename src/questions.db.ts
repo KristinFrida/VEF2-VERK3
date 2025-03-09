@@ -1,3 +1,4 @@
+// src/questions.db.ts
 import { PrismaClient, Question as PrismaQuestion } from '@prisma/client'
 import { z } from 'zod'
 import xss from 'xss'
@@ -12,28 +13,29 @@ const QuestionCreateSchema = z.object({
   answer: z.string().min(3).max(2000),
   categoryId: z.number().optional(),
   answers: z
-  .array(
-    z.object({
-      answer: z.string().min(1).max(2000),
-      isCorrect: z.boolean().optional().default(false),
-    })
-  )
-  .max(4)
-  .optional(),
+    .array(
+      z.object({
+        answer: z.string().min(1).max(2000),
+        isCorrect: z.boolean().optional().default(false),
+      })
+    )
+    .max(4)
+    .optional(),
 })
 
+// Use the refined schema to enforce that exactly one answer is correct
 const QuestionCreateSchemaWithRefine = QuestionCreateSchema.superRefine((data, ctx) => {
   if (data.answers && data.answers.length > 0) {
-    const correctCount = data.answers.filter((a) => a.isCorrect).length;
+    const correctCount = data.answers.filter((a) => a.isCorrect).length
     if (correctCount !== 1) {
       ctx.addIssue({
         code: 'custom',
         message: 'Exactly one answer must be correct',
         path: ['answers'],
-      });
+      })
     }
   }
-});
+})
 
 /**
  * Zod schema fyrir PATCH (update) á spurningu
@@ -47,7 +49,8 @@ export type QuestionUpdateType = z.infer<typeof QuestionUpdateSchema>
  * Validera gögn áður en spurning er búin til
  */
 export function validateQuestionCreate(data: unknown) {
-  return QuestionCreateSchema.safeParse(data)
+  // Use the refined schema so that our superRefine rules are applied.
+  return QuestionCreateSchemaWithRefine.safeParse(data)
 }
 
 /**
@@ -106,24 +109,22 @@ export async function createQuestion(
   data: QuestionCreateType
 ): Promise<PrismaQuestion> {
   // XSS sanitize the question & answer
-  const safeQuestion = xss(data.question);
-  const safeAnswer = xss(data.answer);
-  let answersData: { answer: string; isCorrect: boolean }[] | undefined = undefined;
+  const safeQuestion = xss(data.question)
+  const safeAnswer = xss(data.answer)
+  let answersData: { answer: string; isCorrect: boolean }[] | undefined = undefined
 
   if (data.answers && data.answers.length > 0) {
     answersData = data.answers.map((a) => ({
       answer: xss(a.answer),
       isCorrect: a.isCorrect === true,
-    }));
+    }))
   }
-  
 
   return prisma.question.create({
     data: {
       question: safeQuestion,
       answer: safeAnswer, // Possibly remove if you only want to use `answers[]`
       categoryId: data.categoryId ?? null,
-
       // Create answers in the same transaction
       ...(answersData
         ? {
@@ -137,7 +138,7 @@ export async function createQuestion(
     include: {
       answers: true,
     },
-  });
+  })
 }
 
 /**

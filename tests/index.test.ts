@@ -99,8 +99,14 @@ describe('API routes', () => {
           question: 'What is the capital of Iceland?',
           answer: 'Reykjavík',
           categoryId: null,
+          answers: [
+            { answer: 'Reykjavík', isCorrect: true },
+            { answer: 'Akureyri' },
+            { answer: 'Keflavík' }
+          ]
         })
         .set('Content-Type', 'application/json')
+  
       expect(res.status).toBe(201)
       expect(res.body.question).toBe('What is the capital of Iceland?')
       createdQuestionId = res.body.id
@@ -129,6 +135,9 @@ describe('API routes', () => {
     })
   
     it('DELETE /questions/:id should delete the question', async () => {
+      if (!createdQuestionId) {
+        throw new Error('Question was not created')
+      }
       const res = await request(server).delete(`/questions/${createdQuestionId}`)
       expect([204, 404]).toContain(res.status)
     })

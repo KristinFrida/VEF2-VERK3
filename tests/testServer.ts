@@ -9,8 +9,7 @@ export function createTestServer() {
         headers: req.headers as HeadersInit,
         body: ['GET', 'HEAD'].includes(req.method || '') ? undefined : req as any,
         duplex: 'half',
-      } as any)
-      
+      } as any)      
     const response = await app.fetch(request)
 
     res.writeHead(response.status, Object.fromEntries(response.headers.entries()))
