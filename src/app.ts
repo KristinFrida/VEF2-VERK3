@@ -1,3 +1,4 @@
+// src/app.ts
 import { Hono, Context } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { cors } from 'hono/cors'
@@ -27,8 +28,9 @@ export const app = new Hono()
 
 app.use('/*', cors())
 
-function errorResponse(c: Context, message: string, code = 500) {
+function errorResponse(c: Context, message: string, code = 500, error?: any) {
   console.error(message)
+  if (error) console.error(error)
   return c.json({ error: message }, { status: code as ContentfulStatusCode })
 }
 
@@ -39,8 +41,8 @@ app.get('/categories', async (c) => {
     const { limit = '10', offset = '0' } = c.req.query()
     const categories = await getCategories(Number(limit), Number(offset))
     return c.json(categories, 200)
-  } catch {
-    return errorResponse(c, 'Error fetching categories')
+  } catch (err) {
+    return errorResponse(c, 'Error fetching categories', 500, err)
   }
 })
 
@@ -50,8 +52,8 @@ app.get('/categories/:slug', async (c) => {
     const category = await getCategoryBySlug(slug)
     if (!category) return errorResponse(c, 'Category not found', 404)
     return c.json(category, 200)
-  } catch {
-    return errorResponse(c, 'Error fetching category')
+  } catch (err) {
+    return errorResponse(c, 'Error fetching category', 500, err)
   }
 })
 
@@ -66,8 +68,8 @@ app.post('/category', async (c) => {
     }
     const category = await createCategory(parsed.data)
     return c.json(category, 201)
-  } catch {
-    return errorResponse(c, 'Error creating category')
+  } catch (err) {
+    return errorResponse(c, 'Error creating category', 500, err)
   }
 })
 
@@ -85,7 +87,7 @@ app.patch('/categories/:slug', async (c) => {
     return c.json(updatedCategory, 200)
   } catch (err: any) {
     if (err?.code === 'P2025') return errorResponse(c, 'Category not found', 404)
-    return errorResponse(c, 'Error updating category')
+    return errorResponse(c, 'Error updating category', 500, err)
   }
 })
 
@@ -96,7 +98,7 @@ app.delete('/categories/:slug', async (c) => {
     return c.body(null, 204)
   } catch (err: any) {
     if (err?.code === 'P2025') return errorResponse(c, 'Category not found', 404)
-    return errorResponse(c, 'Error deleting category')
+    return errorResponse(c, 'Error deleting category', 500, err)
   }
 })
 
@@ -105,8 +107,8 @@ app.get('/questions', async (c) => {
     const { limit = '10', offset = '0' } = c.req.query()
     const questions = await getQuestions(Number(limit), Number(offset))
     return c.json(questions, 200)
-  } catch {
-    return errorResponse(c, 'Error fetching questions')
+  } catch (err) {
+    return errorResponse(c, 'Error fetching questions', 500, err)
   }
 })
 
@@ -118,8 +120,8 @@ app.get('/categories/:slug/questions', async (c) => {
     if (!category) return errorResponse(c, 'Category not found', 404)
     const questions = await getQuestionsByCategoryId(category.id, Number(limit), Number(offset))
     return c.json(questions, 200)
-  } catch {
-    return errorResponse(c, 'Error fetching questions for category')
+  } catch (err) {
+    return errorResponse(c, 'Error fetching questions for category', 500, err)
   }
 })
 
@@ -130,8 +132,8 @@ app.get('/questions/:id', async (c) => {
     const question = await getQuestionById(id)
     if (!question) return errorResponse(c, 'Question not found', 404)
     return c.json(question, 200)
-  } catch {
-    return errorResponse(c, 'Error fetching question')
+  } catch (err) {
+    return errorResponse(c, 'Error fetching question', 500, err)
   }
 })
 
@@ -146,8 +148,8 @@ app.post('/questions', async (c) => {
     }
     const newQuestion = await createQuestion(parsed.data)
     return c.json(newQuestion, 201)
-  } catch {
-    return errorResponse(c, 'Error creating question')
+  } catch (err) {
+    return errorResponse(c, 'Error creating question', 500, err)
   }
 })
 
@@ -156,6 +158,7 @@ app.post('/categories/:slug/questions', async (c) => {
   try {
     const category = await getCategoryBySlug(slug)
     if (!category) return errorResponse(c, 'Category not found', 404)
+
     const body = await c.req.json().catch(() => {
       throw new Error('Invalid JSON')
     })
@@ -168,8 +171,8 @@ app.post('/categories/:slug/questions', async (c) => {
       categoryId: category.id,
     })
     return c.json(newQuestion, 201)
-  } catch {
-    return errorResponse(c, 'Error creating question in category')
+  } catch (err) {
+    return errorResponse(c, 'Error creating question in category', 500, err)
   }
 })
 
@@ -188,7 +191,7 @@ app.patch('/questions/:id', async (c) => {
     return c.json(updatedQuestion, 200)
   } catch (err: any) {
     if (err?.code === 'P2025') return errorResponse(c, 'Question not found', 404)
-    return errorResponse(c, 'Error updating question')
+    return errorResponse(c, 'Error updating question', 500, err)
   }
 })
 
@@ -200,6 +203,6 @@ app.delete('/questions/:id', async (c) => {
     return c.body(null, 204)
   } catch (err: any) {
     if (err?.code === 'P2025') return errorResponse(c, 'Question not found', 404)
-    return errorResponse(c, 'Error deleting question')
+    return errorResponse(c, 'Error deleting question', 500, err)
   }
 })

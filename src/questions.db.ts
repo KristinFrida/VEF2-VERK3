@@ -170,7 +170,6 @@ export async function updateQuestion(
  * Eyða spurningu eftir id
  */
 export async function deleteQuestion(id: number): Promise<PrismaQuestion> {
-  return prisma.question.delete({
-    where: { id },
-  })
+  await prisma.answer.deleteMany({ where: { questionId: id } })
+  return prisma.question.delete({ where: { id } })
 }
