@@ -1,4 +1,3 @@
-// src/questions.db.ts
 import { PrismaClient, Question as PrismaQuestion } from '@prisma/client'
 import { z } from 'zod'
 import xss from 'xss'

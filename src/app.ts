@@ -1,4 +1,3 @@
-// src/app.ts
 import { Hono, Context } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { cors } from 'hono/cors'
