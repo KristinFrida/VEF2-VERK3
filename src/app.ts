@@ -10,7 +10,7 @@ import {
   deleteCategory,
   validateCategoryCreate,
   validateCategoryUpdate,
-} from './categories.db.js'
+} from './categories.db'
 
 import {
   getQuestions,
@@ -21,7 +21,7 @@ import {
   deleteQuestion,
   validateQuestionCreate,
   validateQuestionUpdate,
-} from './questions.db.js'
+} from './questions.db'
 
 export const app = new Hono()
 
