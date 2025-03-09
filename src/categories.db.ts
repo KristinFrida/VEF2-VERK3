@@ -66,24 +66,19 @@ export async function getCategoryBySlug(
 /**
  * Búa til nýjan flokk
  */
-export async function createCategory(
-  data: CategoryCreateType
-): Promise<PrismaCategory> {
-  // Hreinsa input
+export async function createCategory(data: CategoryCreateType): Promise<PrismaCategory> {
   const safeTitle = xss(data.title)
-  // Búa til slug
-  const slug = safeTitle
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^\w-]/g, '')
+  let slug = safeTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')
+  const safeSlug = xss(slug)
 
   return prisma.category.create({
     data: {
       title: safeTitle,
-      slug,
+      slug: safeSlug,
     },
   })
 }
+
 
 /**
  * Uppfæra flokk eftir slug
@@ -96,16 +91,14 @@ export async function updateCategory(
 
   if (data.title) {
     const safeTitle = xss(data.title)
-    const newSlug = safeTitle
-      .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^\w-]/g, '')
-
+    let newSlug = safeTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')
+    const safeSlug = xss(newSlug)
     updatedData = {
       title: safeTitle,
-      slug: newSlug,
+      slug: safeSlug,
     }
   }
+  
 
   return prisma.category.update({
     where: { slug },
