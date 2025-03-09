@@ -15,25 +15,27 @@ beforeAll((done) => {
 
 afterAll(async () => {
   try {
-    await prisma.question.deleteMany({ 
-      where: { categoryId: categoryId }
-    });
-    await prisma.category.deleteMany({
+    await prisma.question.deleteMany({
       where: {
-        title: {
-          contains: 'Test Category' 
+        category: {
+          title: { contains: 'Category' } 
         }
       }
-    });
+    })
+    await prisma.category.deleteMany({
+      where: {
+        title: { contains: 'Category' } 
+      }
+    })
 
-    console.log('Test categories and questions cleaned up.');
-  } catch (error) {
-    console.error('Error cleaning up test data:', error);
+    console.log('✅ Cleaned up test questions and categories')
+  } catch (err) {
+    console.error('❌ Cleanup error:', err)
   } finally {
-    await prisma.$disconnect();
-    server.close();
+    await prisma.$disconnect()
+    server.close()
   }
-});
+})
 
 
 describe('API routes', () => {
