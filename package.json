@@ -4,13 +4,13 @@
   "engines": {
     "node": "22"
   },
-  "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "start": "node ./dist/index.js",
-    "lint": "eslint ./src",
-    "test": "jest",
-    "coverage": "jest --coverage"
+ "scripts": {
+  "dev": "tsx watch src/index.ts",
+  "build": "tsc --noEmit false",
+  "start": "node dist/index.js",
+  "lint": "eslint ./src",
+  "test": "jest",
+  "coverage": "jest --coverage"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.8",
