@@ -98,13 +98,17 @@ export async function updateCategory(
       slug: safeSlug,
     }
   }
-  
+  if (!data.title) {
+    delete updatedData.title
+    delete updatedData.slug
+  }
 
   return prisma.category.update({
     where: { slug },
     data: updatedData,
   })
 }
+
 
 /**
  * Eyða flokk eftir slug
