@@ -19,10 +19,10 @@ afterAll(async () => {
 })
 
 describe('API routes', () => {
-  it('GET / should return Hello from Hono', async () => {
+  it('GET / should return Verkefni 3 með Hono', async () => {
     const res = await request(server).get('/')
     expect(res.status).toBe(200)
-    expect(res.body.message).toBe('Hello from Hono!')
+    expect(res.body.message).toBe('Verkefni 3 með Hono')
   })
 
   it('GET /categories should return array', async () => {
