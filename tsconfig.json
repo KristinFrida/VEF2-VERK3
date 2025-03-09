@@ -1,12 +1,13 @@
 {
-    "compilerOptions": {
-      "esModuleInterop": true,
-      "moduleResolution": "node",
-      "resolveJsonModule": true,
-      "target": "ES2020",
-      "module": "CommonJS",
-      "types": ["node", "jest"]
-    },
-    "include": ["**/*.ts"]
-  }
-  
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "target": "ES2020",
+    "module": "ES2020",
+    "types": ["node", "jest"],
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src/**/*.ts"]
+}
