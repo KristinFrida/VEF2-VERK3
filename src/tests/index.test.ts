@@ -14,9 +14,27 @@ beforeAll((done) => {
 })
 
 afterAll(async () => {
-  await prisma.$disconnect()
-  server.close()
-})
+  try {
+    await prisma.question.deleteMany({ 
+      where: { categoryId: categoryId }
+    });
+    await prisma.category.deleteMany({
+      where: {
+        title: {
+          contains: 'Test Category' 
+        }
+      }
+    });
+
+    console.log('Test categories and questions cleaned up.');
+  } catch (error) {
+    console.error('Error cleaning up test data:', error);
+  } finally {
+    await prisma.$disconnect();
+    server.close();
+  }
+});
+
 
 describe('API routes', () => {
   it('GET / should return Verkefni 3 með Hono', async () => {
